@@ -220,11 +220,24 @@ async function renderAppToResponse(
     return viewBag;
   }
 
+  async function transformLayoutServiceData(layoutServiceData: any): Promise<any> {
+    if (config.transformLayoutServiceData) {
+      return await config.transformLayoutServiceData(
+        layoutServiceData,
+        request,
+        serverResponse,
+        proxyResponse
+      );
+    }
+    return layoutServiceData;
+  }
+
   // as the response is ending, we parse the current response body which is JSON, then
   // render the app using that JSON, but return HTML to the final response.
   serverResponse.end = async () => {
     try {
-      const layoutServiceData = await extractLayoutServiceDataFromProxyResponse();
+      const extractedLayoutServiceData = await extractLayoutServiceDataFromProxyResponse();
+      const layoutServiceData = await transformLayoutServiceData(extractedLayoutServiceData);
       const viewBag = await createViewBag(layoutServiceData);
 
       if (!layoutServiceData) {
@@ -309,7 +322,7 @@ export function rewriteRequestPath(
     finalReqPath = finalReqPath.slice(0, qsIndex);
   }
 
-  if(config.qsParams){
+  if (config.qsParams) {
     qs += `&${config.qsParams}`;
   }
 
@@ -331,7 +344,7 @@ export function rewriteRequestPath(
       }
       lang = routeParams.lang;
 
-      if(routeParams.qsParams){
+      if (routeParams.qsParams) {
         qs += `&${routeParams.qsParams}`;
       }
 

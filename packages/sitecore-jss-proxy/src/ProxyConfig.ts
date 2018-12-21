@@ -52,4 +52,13 @@ export interface ProxyConfig {
   ) => void;
   /** Responses from the proxy greater than this size (in bytes) are rejected. */
   maxResponseSizeBytes?: number;
+  /** Hook to transform or modify layout service data after it is retrieved from Sitecore
+   * and before it is delivered as a response or passed as an argument to the AppRenderer.
+   */
+  transformLayoutServiceData?: (
+    layoutServiceData: any,
+    request: ClientRequest,
+    response: ServerResponse,
+    proxyResponse: IncomingMessage
+  ) => Promise<any>;
 }
